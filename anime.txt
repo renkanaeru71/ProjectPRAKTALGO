@@ -1,0 +1,2 @@
+1;Naruto Shippuden;Studio Pierrot;500;8.2;2;Action;Fantasy
+2;Your Name;CoMix Wave Films;1;8.9;3;Romance;Drama;Supernatural
