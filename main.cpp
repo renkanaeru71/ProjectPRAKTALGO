@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
-
+#include <limits>
 using namespace std;
 
 // --- DEKLARASI KONSTANTA & VARIABEL GLOBAL ---
@@ -27,7 +27,6 @@ struct Anime {
 // 1. Array 1 Dimensi sebagai Database Utama
 Anime daftarAnime[MAX_ANIME];
 int jumlahAnime = 0;
-
 
 // --- FUNGSI FILE I/O (TUGAS ANGGOTA 1) ---
 
@@ -104,76 +103,173 @@ void muatData(const char* namaFile) {
     file.close();
     cout << "Data berhasil dimuat dari " << namaFile << " (Total: " << jumlahAnime << " data)\n";
 }
+void tambahData() {
+
+    if (jumlahAnime >= MAX_ANIME) {
+    cout << "Kapasitas penuh!\n";
+    } else {
+        cout << "\n--- Tambah Anime ---\n";
+        cout << "ID       : "; cin >> daftarAnime[jumlahAnime].id;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Membersihkan buffer newline agar cin.getline bisa bekerja
+        cout << "Judul    : "; cin.getline(daftarAnime[jumlahAnime].judul, 100);
+        cout << "Studio   : "; cin.getline(daftarAnime[jumlahAnime].studio, 50);
+        cout << "Episode  : "; cin >> daftarAnime[jumlahAnime].episode;
+        cout << "Rating   : "; cin >> daftarAnime[jumlahAnime].rating;
+                
+        cout << "Jumlah Kategori (maks 3): "; 
+        cin >> daftarAnime[jumlahAnime].jumlahKategori;
+        if (daftarAnime[jumlahAnime].jumlahKategori > 3) daftarAnime[jumlahAnime].jumlahKategori = 3;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Membersihkan buffer
+                
+        // Input masing-masing kategori
+        for (int k = 0; k < daftarAnime[jumlahAnime].jumlahKategori; k++) {
+        cout << "Kategori ke-" << (k+1) << " : ";
+        cin.getline(daftarAnime[jumlahAnime].kategori[k], 20);
+        }
+        jumlahAnime++;
+        cout << "Data berhasil ditambahkan (Jangan lupa pilih menu 3 untuk menyimpan!)\n";
+            }
+
+    cout << "\npress enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 
 
-// --- FUNGSI MAIN (UNTUK TESTING) ---
+}
+
+void tampilkanData() {
+    cout << "\n--- Daftar Anime (" << jumlahAnime << " Data) ---\n";
+    for (int i = 0; i < jumlahAnime; ++i) {
+        cout << "ID       : " << daftarAnime[i].id << "\n"
+             << "Judul    : " << daftarAnime[i].judul << "\n"
+             << "Studio   : " << daftarAnime[i].studio << "\n"
+             << "Episode  : " << daftarAnime[i].episode << "\n"
+             << "Rating   : " << daftarAnime[i].rating << "\n"
+             << "Kategori : ";
+                     
+        for (int k = 0; k < daftarAnime[i].jumlahKategori; k++) {
+            cout << daftarAnime[i].kategori[k];
+            if (k < daftarAnime[i].jumlahKategori - 1) cout << ", ";
+        }
+        cout << "\n-------------------------------\n";
+    }
+    cout << "\npress enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
+}
+
+void cariAnime() {
+    char keyword[100];
+    cout << "\nMasukkan judul atau kategori yang ingin dicari: ";
+    cin.getline(keyword, 100);
+
+    cout << "\n--- Hasil Pencarian ---\n";
+    bool ditemukan = false;
+    for (int i = 0; i < jumlahAnime; ++i) {
+        // Cek apakah judul mengandung keyword
+        if (strstr(daftarAnime[i].judul, keyword) != nullptr) {
+            cout << "ID       : " << daftarAnime[i].id << "\n"
+                 << "Judul    : " << daftarAnime[i].judul << "\n"
+                 << "Studio   : " << daftarAnime[i].studio << "\n"
+                 << "Episode  : " << daftarAnime[i].episode << "\n"
+                 << "Rating   : " << daftarAnime[i].rating << "\n"
+                 << "Kategori : ";
+                         
+            for (int k = 0; k < daftarAnime[i].jumlahKategori; k++) {
+                cout << daftarAnime[i].kategori[k];
+                if (k < daftarAnime[i].jumlahKategori - 1) cout << ", ";
+            }
+            cout << "\n-------------------------------\n";
+            ditemukan = true;
+        } else {
+            // Cek apakah ada kategori yang mengandung keyword
+            for (int k = 0; k < daftarAnime[i].jumlahKategori; k++) {
+                if (strstr(daftarAnime[i].kategori[k], keyword) != nullptr) {
+                    cout << "ID       : " << daftarAnime[i].id << "\n"
+                         << "Judul    : " << daftarAnime[i].judul << "\n"
+                         << "Studio   : " << daftarAnime[i].studio << "\n"
+                         << "Episode  : " << daftarAnime[i].episode << "\n"
+                         << "Rating   : " << daftarAnime[i].rating << "\n"
+                         << "Kategori : ";
+                                 
+                    for (int kk = 0; kk < daftarAnime[i].jumlahKategori; kk++) {
+                        cout << daftarAnime[i].kategori[kk];
+                        if (kk < daftarAnime[i].jumlahKategori - 1) cout << ", ";
+                    }
+                    cout << "\n-------------------------------\n";
+                    ditemukan = true;
+                    break; // Tidak perlu cek kategori lain jika sudah ditemukan
+                }
+            }
+        }
+    }
+
+    if (!ditemukan) {
+        cout << "Anime tidak ditemukan.\n";
+    }
+
+    cout << "\npress enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
+}
 
 int main() {
     // Memuat data di awal jika ada
     muatData("anime.txt");
-
+    char lanjut;
     int pilihan;
     do {
-        cout << "\n=== MENU SEMENTARA (ANGGOTA 1) ===\n";
+        cout << "\n=== MENU SEMENTARA (ANGGOTA 2) ===\n";
         cout << "1. Tambah Data Anime\n";
-        cout << "2. Tampilkan Semua Data\n";
-        cout << "3. Simpan Data ke File\n";
-        cout << "4. Muat Data dari File\n";
+        cout << "2. Tampilkan List Anime\n";
+        cout << "3. Cari Anime Yang Ingin Ditonton\n";
+        cout << "4. Simpan Data ke File\n";
+        cout << "5. Muat Data dari File\n";
         cout << "0. Keluar\n";
         cout << "Pilih opsi: ";
-        cin >> pilihan;
-
-        if (pilihan == 1) {
-            if (jumlahAnime >= MAX_ANIME) {
-                cout << "Kapasitas penuh!\n";
-            } else {
-                cout << "\n--- Tambah Anime ---\n";
-                cout << "ID       : "; cin >> daftarAnime[jumlahAnime].id;
-                cin.ignore(); // Membersihkan buffer newline agar cin.getline bisa bekerja
-                cout << "Judul    : "; cin.getline(daftarAnime[jumlahAnime].judul, 100);
-                cout << "Studio   : "; cin.getline(daftarAnime[jumlahAnime].studio, 50);
-                cout << "Episode  : "; cin >> daftarAnime[jumlahAnime].episode;
-                cout << "Rating   : "; cin >> daftarAnime[jumlahAnime].rating;
-                
-                cout << "Jumlah Kategori (maks 3): "; 
-                cin >> daftarAnime[jumlahAnime].jumlahKategori;
-                if (daftarAnime[jumlahAnime].jumlahKategori > 3) daftarAnime[jumlahAnime].jumlahKategori = 3;
-                cin.ignore(); // Membersihkan buffer
-                
-                // Input masing-masing kategori
-                for (int k = 0; k < daftarAnime[jumlahAnime].jumlahKategori; ++k) {
-                    cout << "Kategori ke-" << (k+1) << " : ";
-                    cin.getline(daftarAnime[jumlahAnime].kategori[k], 20);
-                }
-                jumlahAnime++;
-                cout << "Data berhasil ditambahkan (Jangan lupa pilih menu 3 untuk menyimpan!)\n";
-            }
-        } 
-        else if (pilihan == 2) {
-            cout << "\n--- Daftar Anime (" << jumlahAnime << " Data) ---\n";
-            for (int i = 0; i < jumlahAnime; ++i) {
-                cout << "ID       : " << daftarAnime[i].id << "\n"
-                     << "Judul    : " << daftarAnime[i].judul << "\n"
-                     << "Studio   : " << daftarAnime[i].studio << "\n"
-                     << "Episode  : " << daftarAnime[i].episode << "\n"
-                     << "Rating   : " << daftarAnime[i].rating << "\n"
-                     << "Kategori : ";
-                     
-                for (int k = 0; k < daftarAnime[i].jumlahKategori; ++k) {
-                    cout << daftarAnime[i].kategori[k];
-                    if (k < daftarAnime[i].jumlahKategori - 1) cout << ", ";
-                }
-                cout << "\n-------------------------------\n";
-            }
+        if (!(cin >> pilihan)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input tidak valid. Masukkan angka.\n";
+            continue;
         }
-        else if (pilihan == 3) {
+        // buang sisa baris jika ada
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (pilihan) {
+        case 1:
+            tambahData();
+            break;
+        case 2:
+            tampilkanData();
+            break;
+        case 3:
+            cariAnime();
+            break;
+        case 4:
             simpanData("anime.txt");
-        }
-        else if (pilihan == 4) {
+            break;
+        case 5:
             muatData("anime.txt");
+            break;
+        case 0:
+            cout << "Keluar dari program...\n";
+            break;
+        default:
+            cout << "Pilihan tidak valid!\n";
+            break;
         }
 
-    } while (pilihan != 0);
+        cout << "\nLihat menu lagi? (y) tidak?(n): ";
+        if (!(cin >> lanjut)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            lanjut = 'n';
+        }
+        // buang sisa baris
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    } while (lanjut != 'n' && lanjut != 'N');
 
     cout << "Program selesai.\n";
     return 0;
